@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Emotion Intelligence using MS Cognitive Service</title>
+
+<script language="JavaScript">
+function take_snapshot() {
+    Webcam.snap(function(data_uri) {
+    document.getElementById('results').innerHTML = '<img id="base64image" src="'+data_uri+'"/><button onclick="SaveSnap();">Analyze</button>';
+});
+}
+function ShowCam(){
+Webcam.set({
+width: 320,
+height: 240,
+image_format: 'jpeg',
+jpeg_quality: 100
+});
+Webcam.attach('#my_camera');
+}
+function SaveSnap(){
+    document.getElementById("loading").innerHTML="Analyzing, please wait...";
+    var file = document.getElementById("base64image").src.substring(23).replace(' ', '+');
+	var img = Base64Binary.decodeArrayBuffer(file);
+    var ajax = new XMLHttpRequest();
+    ajax.addEventListener("load", function(event) { uploadcomplete(event);}, false);
+    ajax.open("POST", "https://api.projectoxford.ai/emotion/v1.0/recognize","image/jpg");
+	ajax.setRequestHeader("Content-Type","application/octet-stream");
+	//ajax.setRequestHeader("Accept-Encoding","gzip, deflate");
+	ajax.setRequestHeader("Accept","text/html,application/xhtml+xml,application/xml");
+	ajax.setRequestHeader("Ocp-Apim-Subscription-Key","YOUR-EMOTION-API-KEY");
+	ajax.send(img);
+}
+
+function uploadcomplete(event){
+    document.getElementById("loading").innerHTML="Compleated";
+	var xmlDoc=event.target.responseXML;
+	var list = xmlDoc.getElementsByTagName("scores");
+	document.getElementById("anger").innerHTML = list[0].childNodes[0].textContent;
+	document.getElementById("contempt").innerHTML = list[0].childNodes[1].textContent;
+	document.getElementById("disgust").innerHTML = list[0].childNodes[2].textContent;
+	document.getElementById("fear").innerHTML = list[0].childNodes[3].textContent;
+	document.getElementById("happiness").innerHTML = list[0].childNodes[4].textContent;
+	document.getElementById("neutral").innerHTML = list[0].childNodes[5].textContent;
+	document.getElementById("sadness").innerHTML = list[0].childNodes[6].textContent;
+	document.getElementById("surprise").innerHTML = list[0].childNodes[7].textContent;
+}
+window.onload= ShowCam;
+</script>
+<style type="text/css">
+.container{display:inline-block;width:320px;}
+.footer{background:rgb(255,255,215);}
+.chart div {
+   font: 10px sans-serif;
+   background-color: steelblue;
+   text-align: right;
+   padding: 3px;
+   margin: 1px;
+   color: white;
+ }
+</style
+</head>
+<body>
+<div class="container" id="Cam"><b>Webcam Preview...</b>
+    <div class="footer"><div id="my_camera"></div><form><input type="button" value="Snap It" onClick="take_snapshot()"></form></div>
+</div>
+<div class="container" id="Prev">
+    <div class="footer"><b>Snap Preview...</b><div id="results"></div></div>
+</div>
+<div class="container" id="Saved">
+    <div id="chart" class="chart">
+		<p>Anger : <span id="anger"></span></p>
+		<p>Contempt : <span id="contempt"></span></p>
+		<p>Disgust : <span id="disgust"></span></p>
+		<p>Fear : <span id="fear"></span></p>
+		<p>Happiness : <span id="happiness"></span></p>
+		<p>Neutral : <span id="neutral"></span></p>
+		<p>Sadness : <span id="sadness"></span></p>
+		<p>Surprise : <span id="surprise"></span></p>
+    </div>
+	<div class="footer"><b>Task : </b><span id="loading"></span></div>
+</div>
+
+</body>
+<script type="text/javascript" src="webcam.min.js"></script>
+<script type="text/javascript" src="base64-binary.js"></script>
+</html>
