@@ -1,5 +1,4 @@
-# emotion
-Webcam Emotion Analytics using MS Cognitive Service
+# Webcam Emotion Analytics using MS Cognitive Service
 
 # Inspiration
 
